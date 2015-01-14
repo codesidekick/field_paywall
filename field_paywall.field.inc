@@ -176,7 +176,8 @@ function field_paywall_field_formatter_view($entity_type, $entity, $field, $inst
 function field_paywall_field_attach_view_alter(&$output, $context) {
   $entity = $context['entity'];
   $entity_type = $context['entity_type'];
-  $entity_id = reset(entity_extract_ids($entity_type, $entity));
+  $entity_ids = entity_extract_ids($entity_type, $entity);
+  $entity_id = reset($entity_ids);
 
   if (!isset($entity->active_paywalls)) {
     return;
