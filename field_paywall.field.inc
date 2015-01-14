@@ -59,7 +59,8 @@ function field_paywall_field_instance_settings_form($field, $instance) {
   );
 
   foreach (_field_paywall_get_paywall_option_types() as $setting_name) {
-    $form['paywall'] += _field_paywall_get_paywall_options_form($setting_name, 'instance', $settings['paywall'][$setting_name], $instance);
+    $default_value = empty($settings['paywall']) ? FALSE : $settings['paywall'][$setting_name];
+    $form['paywall'] += _field_paywall_get_paywall_options_form($setting_name, 'instance', $default_value, $instance);
   }
 
   return $form;
@@ -73,7 +74,7 @@ function field_paywall_field_widget_form(&$form, &$form_state, $field, $instance
     case 'field_paywall_widget':
       $element['#instance'] = $instance;
       $element['#process'][] = 'field_paywall_field_widget_process';
-      $element['#value'] = $items[$delta];
+      $element['#value'] = empty($items[$delta]) ? FALSE : $items[$delta];
       break;
   }
   return $element;
