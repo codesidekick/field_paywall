@@ -8,6 +8,5 @@ version = 7.x-1.0
 
 dependencies[] = field
 
-files[] = tests/field_paywall.fields_hidden.test
 files[] = tests/field_paywall.message.test
 files[] = tests/field_paywall.roles.test
