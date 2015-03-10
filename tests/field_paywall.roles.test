@@ -20,7 +20,7 @@ class FieldPaywallRolesTestCase extends NodeWebTestCase {
    */
   public static function getInfo() {
     return array(
-      'name'  => 'Paywall field: Roles',
+      'name'  => 'Paywall field',
       'description'  => 'Test whether the Paywall field is only visible for given roles.',
       'group' => 'Paywall field',
     );
@@ -31,7 +31,7 @@ class FieldPaywallRolesTestCase extends NodeWebTestCase {
    */
   public function setUp() {
     parent::setUp('field_paywall');
-    $this->webUser = $this->drupalCreateUser(array('create article content', 'create page content'));
+    $this->webUser = $this->drupalCreateUser(array('create page content', 'edit own page content'));
     $this->drupalLogin($this->webUser);
   }
 
@@ -40,6 +40,7 @@ class FieldPaywallRolesTestCase extends NodeWebTestCase {
    */
   protected function testPaywallRoles() {
     $default_message = 'Default message';
+    $body_field_text = 'Body field text';
 
     // Create a field with settings to validate.
     $this->field = array(
@@ -63,8 +64,12 @@ class FieldPaywallRolesTestCase extends NodeWebTestCase {
       'default_value' => array(
         0 => array(
           'message' => $default_message,
-          'roles' => array(),
-          'fields_hidden' => array(),
+          'roles' => array(
+            1 => 1,
+          ),
+          'fields_hidden' => array(
+            'body',
+          ),
         ),
       ),
     );
@@ -73,20 +78,22 @@ class FieldPaywallRolesTestCase extends NodeWebTestCase {
     // Display creation form.
     $this->drupalGet('node/add/page');
     $langcode = LANGUAGE_NONE;
-    $this->assertFieldByName("{$this->field['field_name']}[$langcode][paywall][roles][1]", 0, 'Anonymous role checkbox displayed.');
 
     // Set the test message.
     $edit = array(
       'title' => drupal_strtolower($this->randomName()),
-      "{$this->field['field_name']}[$langcode][paywall][roles][1]" => 'checked',
+      'body[und][0][value]' => $body_field_text,
+      "{$this->field['field_name']}[$langcode][paywall][enabled]" => 'checked',
     );
     $this->drupalPost(NULL, $edit, t('Save'));
 
     $this->assertNoRaw($default_message, 'Paywall message is not displayed for authenticated role.');
+    $this->assertRaw($body_field_text, 'Body field text is shown for authenticated role.');
     $node_url = $this->getUrl();
 
     $this->drupalLogout();
     $this->drupalGet($node_url);
     $this->assertRaw($default_message, 'Paywall message is displayed for anonymous role.');
+    $this->assertNoRaw($body_field_text, 'Body field text is hidden for anonymous role.');
   }
 }

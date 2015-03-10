@@ -59,7 +59,7 @@ function field_paywall_field_instance_settings_form($field, $instance) {
   );
 
   foreach (_field_paywall_get_paywall_option_types() as $setting_name) {
-    $default_value = empty($settings['paywall']) ? FALSE : $settings['paywall'][$setting_name];
+    $default_value = !empty($settings['paywall']) ? $settings['paywall'][$setting_name] : NULL;
     $form['paywall'] += _field_paywall_get_paywall_options_form($setting_name, 'instance', $default_value, $instance);
   }
 
@@ -74,7 +74,9 @@ function field_paywall_field_widget_form(&$form, &$form_state, $field, $instance
     case 'field_paywall_widget':
       $element['#instance'] = $instance;
       $element['#process'][] = 'field_paywall_field_widget_process';
-      $element['#value'] = empty($items[$delta]) ? FALSE : $items[$delta];
+      if (!empty($items[$delta])) {
+        $element['#value'] = $items[$delta];
+      }
       break;
   }
   return $element;
@@ -84,7 +86,7 @@ function field_paywall_field_widget_form(&$form, &$form_state, $field, $instance
  * Element process function for paywall widget form.
  */
 function field_paywall_field_widget_process($element, &$form_state, $form) {
-  $item = $element['#value'];
+  $item = !empty($element['#value']) ? $element['#value'] : array();
   $instance = $element['#instance'];
   $element['#access'] = FALSE;
 
@@ -155,6 +157,51 @@ function field_paywall_field_formatter_info() {
 }
 
 /**
+ * Implements hook_field_formatter_prepare_view().
+ */
+function field_paywall_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
+  $paywall_name = $field['field_name'];
+
+  foreach ($items as $entity_id => &$values) {
+    if (empty($values)) {
+      // Prepopulate with default values if no value is present at all for the
+      // node.
+      foreach (_field_paywall_get_paywall_option_types() as $paywall_setting_key) {
+        if (!empty($instances[$entity_id]['settings']['paywall'][$paywall_setting_key])) {
+          $values[0][$paywall_setting_key] = $instances[$entity_id]['default_value'][0][$paywall_setting_key];
+        }
+      }
+    }
+    else {
+      foreach ($values as &$paywall) {
+        foreach ($paywall as $paywall_setting_key => &$paywall_setting) {
+          // If the option to prevent entity specific paywall values is checked
+          // for this paywall field, populate the value with the default.
+          if (!empty($instances[$entity_id]['settings']['paywall'][$paywall_setting_key])) {
+            $paywall_setting = $instances[$entity_id]['default_value'][0][$paywall_setting_key];
+          }
+          // Deserialize any loaded values.
+          else {
+            if (in_array($paywall_setting_key, array(
+                'fields_hidden',
+                'roles',
+              )) && !is_array($paywall_setting)
+            ) {
+              $paywall_setting = unserialize($paywall_setting);
+            }
+          }
+        }
+      }
+    }
+    foreach ($values as $paywall) {
+      $paywall['active'] = FALSE;
+
+      $entities[$entity_id]->active_paywalls[$paywall_name] = $paywall;
+    }
+  }
+}
+
+/**
  * Implements hook_field_formatter_view().
  */
 function field_paywall_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
@@ -220,45 +267,7 @@ function field_paywall_field_attach_view_alter(&$output, $context) {
  * Implements hook_field_load().
  */
 function field_paywall_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
-  $paywall_name = $field['field_name'];
 
-  foreach ($items as $entity_id => &$values) {
-    if (empty($values)) {
-      // Prepopulate with default values if no value is present at all for the
-      // node.
-      foreach (_field_paywall_get_paywall_option_types() as $paywall_setting_key) {
-        if (!empty($instances[$entity_id]['settings']['paywall'][$paywall_setting_key])) {
-          $values[0][$paywall_setting_key] = $instances[$entity_id]['default_value'][0][$paywall_setting_key];
-        }
-      }
-    }
-    else {
-      foreach ($values as &$paywall) {
-        foreach ($paywall as $paywall_setting_key => &$paywall_setting) {
-          // If the option to prevent entity specific paywall values is checked
-          // for this paywall field, populate the value with the default.
-          if (!empty($instances[$entity_id]['settings']['paywall'][$paywall_setting_key])) {
-            $paywall_setting = $instances[$entity_id]['default_value'][0][$paywall_setting_key];
-          }
-          // Deserialize any loaded values.
-          else {
-            if (in_array($paywall_setting_key, array(
-                'fields_hidden',
-                'roles',
-              )) && !is_array($paywall_setting)
-            ) {
-              $paywall_setting = unserialize($paywall_setting);
-            }
-          }
-        }
-      }
-    }
-    foreach ($values as $paywall) {
-      $paywall['active'] = FALSE;
-
-      $entities[$entity_id]->active_paywalls[$paywall_name] = $paywall;
-    }
-  }
 }
 
 /**
@@ -312,6 +321,10 @@ function _field_paywall_get_paywall_options_form($setting_field, $context = 'ins
         $form[$setting_field]['#description'] = t('User roles which activate the paywall.');
         $form[$setting_field]['#options'] = user_roles();
         $form[$setting_field]['#element_validate'][] = '_field_paywall_clean_checkbox_values';
+
+        if (is_string($default_value)) {
+          $default_value = unserialize($default_value);
+        }
         break;
 
       case 'message':
@@ -346,6 +359,10 @@ function _field_paywall_get_paywall_options_form($setting_field, $context = 'ins
         $form[$setting_field]['#description'] = t('Fields hidden by the paywall.');
         $form[$setting_field]['#options'] = $field_options;
         $form[$setting_field]['#element_validate'][] = '_field_paywall_clean_checkbox_values';
+
+        if (is_string($default_value)) {
+          $default_value = unserialize($default_value);
+        }
         break;
     }
   }
