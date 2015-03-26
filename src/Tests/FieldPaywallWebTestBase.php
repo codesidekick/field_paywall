@@ -116,10 +116,8 @@ abstract class FieldPaywallWebTestBase extends WebTestBase {
    */
   protected function setPaywallDisplayOptions() {
     $display_options = array(
-      'settings' => array(
-        'message' => $this->message,
-        'hidden_fields' => $this->hiddenFields,
-      ),
+      'message' => $this->message,
+      'hidden_fields' => $this->hiddenFields,
     );
 
     $display = entity_get_display('node', 'article', 'default');
