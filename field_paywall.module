@@ -1,0 +1,42 @@
+<?php
+/**
+ * @file
+ * Paywall field module.
+ */
+
+use \Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_theme().
+ */
+function field_paywall_theme() {
+  return array(
+    // Theme functions in field_paywall.module.
+    'paywall' => array(
+      'variables' => array(
+        'message' => '',
+        'hidden_fields' => array(),
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function field_paywall_entity_view_alter(array &$build, Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
+  if (!isset($entity->active_paywalls)) {
+    return;
+  }
+
+  // Hide any field specified by the entity's currently active paywalls.
+  foreach ($entity->active_paywalls as $paywall_name => $paywall_settings) {
+    $hidden_fields = $paywall_settings['hidden_fields'];
+
+    foreach ($hidden_fields as $hidden_field_name) {
+      if (!empty($build[$hidden_field_name])) {
+        $build[$hidden_field_name]['#access'] = FALSE;
+      }
+    }
+  }
+}

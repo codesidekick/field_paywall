@@ -1,0 +1,9 @@
+name: Field Paywall
+description: Provides paywall protection with rules integration for entities.
+package: Field paywall
+type: module
+version: 1.0
+core: 8.x
+dependencies:
+  - field
+configure: example.admin_index
