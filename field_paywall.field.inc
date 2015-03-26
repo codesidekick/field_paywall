@@ -140,7 +140,7 @@ function field_paywall_field_process_before_save($entity_type, $entity, $field, 
     }
 
     // Ensure enabled has an integer boolean value.
-    $item['enabled'] = (int) ((bool) $item['enabled']);
+    $item['enabled'] = isset($item['enabled']) ? (int) ((bool) $item['enabled']) : 0;
   }
 }
 
