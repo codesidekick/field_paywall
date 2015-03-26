@@ -1,0 +1,12 @@
+# Schema for configuration files of the Paywall module.
+
+field.formatter.settings.paywall_formatter:
+  type: mapping
+  label: 'Paywall field display format settings'
+  mapping:
+    message:
+      type: string
+      label: 'Paywall message'
+    image_style:
+      type: sequence
+      label: 'Hidden fields'
