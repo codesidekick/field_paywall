@@ -7,12 +7,12 @@
 
 namespace Drupal\field_paywall\Tests;
 
-use Drupal\simpletest\WebTestBase;
+use Drupal\field\Tests\FieldTestBase;
 
 /**
  * Base class for Paywall field module integration tests.
  */
-abstract class FieldPaywallWebTestBase extends WebTestBase {
+abstract class FieldPaywallWebTestBase extends FieldTestBase {
 
   /**
    * Modules to enable.
@@ -116,8 +116,10 @@ abstract class FieldPaywallWebTestBase extends WebTestBase {
    */
   protected function setPaywallDisplayOptions() {
     $display_options = array(
-      'message' => $this->message,
-      'hidden_fields' => $this->hiddenFields,
+      'settings' => array(
+        'message' => $this->message,
+        'hidden_fields' => $this->hiddenFields,
+      ),
     );
 
     $display = entity_get_display('node', 'article', 'default');

@@ -7,6 +7,12 @@ field.formatter.settings.paywall_formatter:
     message:
       type: string
       label: 'Paywall message'
-    image_style:
+    hidden_fields:
       type: sequence
       label: 'Hidden fields'
+      sequence:
+      ￼type: field_paywall_hidden_fields.[%key] 
+
+field_paywall_hidden_fields.single:*:
+  type: string
+  label: Hidden field name

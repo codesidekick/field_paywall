@@ -73,7 +73,11 @@ class PaywallItem extends FieldItemBase {
     $element['help'] = array(
       '#type' => 'markup',
       '#prefix' => '<h2>' . t('User permissions') . '</h2>',
-      '#markup' => '<p>' . t('By default all users will receive the paywall when enabled unless you change the user permissions for who can bypass the paywall.') . '</p>',
+      '#markup' => '<p>' . t('By default all users will receive the paywall when enabled unless you change the <a href="@user_permissions_url">user permissions</a> for who can bypass the paywall.', array(
+          '@user_permissions_url' => \Drupal::url('user.admin_permissions', array(), array(
+            'fragment' => 'module-field_paywall',
+          )),
+        )) . '</p>',
       '#weight' => 99,
     );
 

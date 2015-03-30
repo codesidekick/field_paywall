@@ -29,14 +29,17 @@ class PaywallFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items) {
     $elements = array();
-    foreach ($items as $delta => $item) {
-      if (!empty($item->enabled)) {
-        // Render output using snippets_default theme.
-        $elements[$delta] = array(
-          '#theme' => 'paywall',
-          '#message' => String::checkPlain($this->getSetting('message')),
-          '#hidden_fields' => String::checkPlain($this->getSetting('hidden_fields')),
-        );
+
+    if ($this->shouldUserSeePaywall()) {
+      foreach ($items as $delta => $item) {
+        if (!empty($item->enabled)) {
+          // Render output using snippets_default theme.
+          $elements[$delta] = array(
+            '#theme' => 'paywall',
+            '#message' => String::checkPlain($this->getSetting('message')),
+            '#hidden_fields' => String::checkPlain($this->getSetting('hidden_fields')),
+          );
+        }
       }
     }
 
@@ -47,6 +50,10 @@ class PaywallFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function prepareView(array $entities_items) {
+    if (!$this->shouldUserSeePaywall()) {
+      return;
+    }
+
     foreach ($entities_items as $entities_item) {
       $entity = $entities_item->getEntity();
       $value = $entities_item->getValue();
@@ -115,6 +122,27 @@ class PaywallFormatter extends FormatterBase {
     }
 
     return $available_fields;
+  }
+
+  /**
+   * Check whether or not the current user shoudl see the paywall or not.
+   */
+  public function shouldUserSeePaywall() {
+    $user_sees_paywall = TRUE;
+    $user = \Drupal::currentUser();
+
+    $bundle = $this->fieldDefinition->getTargetBundle();
+    $paywall_uuid = $this->fieldDefinition->getConfig($bundle)->uuid();
+
+    if ($user->hasPermission('bypass ' . $paywall_uuid)) {
+      $user_sees_paywall = FALSE;
+    }
+
+    if ($user->hasPermission('bypass paywalls')) {
+      $user_sees_paywall = FALSE;
+    }
+
+    return $user_sees_paywall;
   }
 
   /**
