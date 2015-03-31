@@ -48,6 +48,8 @@ class PaywallItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public function isEmpty() {
+    // Always set to FALSE as other modules should be able to override paywall
+    // state whether or not it is enabled for the Entity.
     return FALSE;
   }
 
