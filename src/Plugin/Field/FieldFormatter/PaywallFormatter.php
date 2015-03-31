@@ -29,15 +29,16 @@ class PaywallFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items) {
     $elements = array();
+    $account = \Drupal::currentUser();
 
-    if ($this->shouldUserSeePaywall()) {
+    if ($this->shouldUserSeePaywall($account)) {
       foreach ($items as $delta => $item) {
         if (!empty($item->enabled)) {
           // Render output using snippets_default theme.
           $elements[$delta] = array(
             '#theme' => 'paywall',
             '#message' => String::checkPlain($this->getSetting('message')),
-            '#hidden_fields' => String::checkPlain($this->getSetting('hidden_fields')),
+            '#hidden_fields' => $this->getSetting('hidden_fields'),
           );
         }
       }
@@ -50,10 +51,12 @@ class PaywallFormatter extends FormatterBase {
    * {@inheritdoc}
    */
   public function prepareView(array $entities_items) {
-    if (!$this->shouldUserSeePaywall()) {
+    $account = \Drupal::currentUser();
+    if (!$this->shouldUserSeePaywall($account)) {
       return;
     }
 
+    // Set a flag on the entity stating that which paywalls are active.
     foreach ($entities_items as $entities_item) {
       $entity = $entities_item->getEntity();
       $value = $entities_item->getValue();
@@ -106,7 +109,7 @@ class PaywallFormatter extends FormatterBase {
    * @return array
    *
    */
-  protected function getAvailableFields() {
+  public function getAvailableFields() {
     $available_fields = array();
 
     $field_definition = $this->fieldDefinition;
@@ -126,19 +129,24 @@ class PaywallFormatter extends FormatterBase {
 
   /**
    * Check whether or not the current user should see the paywall or not.
+   *
+   * @param \Drupal\Core\Session\AccountProxyInterface $account
+   *   The user account to test.
+   *
+   * @return bool
+   *   Whether or not the user should see the paywall.
    */
-  public function shouldUserSeePaywall() {
+  public function shouldUserSeePaywall($account) {
     $user_sees_paywall = TRUE;
-    $user = \Drupal::currentUser();
 
     $bundle = $this->fieldDefinition->getTargetBundle();
     $paywall_uuid = $this->fieldDefinition->getConfig($bundle)->uuid();
 
-    if ($user->hasPermission('bypass ' . $paywall_uuid)) {
+    if ($account->hasPermission('bypass ' . $paywall_uuid)) {
       $user_sees_paywall = FALSE;
     }
 
-    if ($user->hasPermission('bypass paywalls')) {
+    if ($account->hasPermission('bypass paywalls')) {
       $user_sees_paywall = FALSE;
     }
 

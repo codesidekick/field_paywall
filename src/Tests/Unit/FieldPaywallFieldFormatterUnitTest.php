@@ -7,6 +7,7 @@
 
 namespace Drupal\field_paywall\Tests\Unit;
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Form\FormState;
@@ -30,6 +31,13 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
     'field_test_1',
     'field_test_2',
   );
+
+  /**
+   * The paywall field definition in use.
+   *
+   * @var \Drupal\field\Entity\FieldConfig;
+   */
+  protected $paywallFieldDefinition = NULL;
 
   /**
    * The paywall formatter plugin to test.
@@ -59,7 +67,7 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
   public function testViewElements() {
     $entity = $this->createTestEntity(TRUE);
 
-    $method_output = $this->paywallFormatterInstance->view($entity->field_paywall);
+    $method_output = $this->paywallFormatterInstance->viewElements($entity->field_paywall);
 
     $this->assertEqual('paywall', $method_output[0]['#theme'], 'Paywall field theme correct');
     $this->assertEqual($this->paywallTestMessage, $method_output[0]['#message'], 'Paywall message correct');
@@ -74,11 +82,11 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
 
     $this->paywallFormatterInstance->prepareView(array($entity->field_paywall));
 
-    $this->assertTrue(!empty($entity->activePaywalls['field_paywall']), 'Active paywall set on Entity');
-
     $active_paywall = $entity->activePaywalls['field_paywall'];
     $enabled = $active_paywall['enabled'];
     $hidden_fields = $active_paywall['hidden_fields'];
+
+    $this->assertTrue(!empty($entity->activePaywalls['field_paywall']), 'Active paywall set on Entity');
 
     $this->assertEqual(1, $enabled, 'Paywall is enabled');
     $this->assertEqual($this->paywallHiddenFields, $hidden_fields, 'Hidden fields set');
@@ -100,6 +108,7 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
   public function testSettingsForm() {
     $form_state = new FormState();
     $settings_form = $this->paywallFormatterInstance->settingsForm(array(), $form_state);
+    $hidden_field_options = $settings_form['hidden_fields']['#options'];
 
     $this->assertEqual('textarea', $settings_form['message']['#type'], 'Message field is a textarea');
     $this->assertEqual('checkboxes', $settings_form['hidden_fields']['#type'], 'Hidden fields field is checkboxes');
@@ -108,33 +117,106 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
     $this->assertEqual($this->paywallHiddenFields, $settings_form['hidden_fields']['#default_value'], 'Hidden fields default value in settings form correct');
 
     // Check that hidden fields is showing availables correctly.
-    $hidden_field_options = $settings_form['hidden_fields']['#options'];
     $this->assertEqual(count($this->otherFieldNames), count($hidden_field_options), 'Correct number of hidden field options');
-    foreach ($settings_form['hidden_fields']['#options'] as $field_name) {
+    foreach ($hidden_field_options as $field_name) {
       $this->assertTrue(in_array($field_name, $this->otherFieldNames), 'Field name option correct');
     }
   }
-//
-//  /**
-//   * @covers ::getAvailableFields
-//   */
-//  public function testGetAvailableFields() {
-//    $this->assertTrue(TRUE, 'true');
-//  }
-//
-//  /**
-//   * @covers ::shouldUserSeePaywall
-//   */
-//  public function testShouldUserSeePaywall() {
-//    $this->assertTrue(TRUE, 'true');
-//  }
-//
-//  /**
-//   * @covers ::settingsSummary
-//   */
-//  public function testSettingsSummary() {
-//    $this->assertTrue(TRUE, 'true');
-//  }
+
+  /**
+   * @covers ::getAvailableFields
+   */
+  public function testGetAvailableFields() {
+    $available_fields = $this->paywallFormatterInstance->getAvailableFields();
+
+    $this->assertEqual(count($this->otherFieldNames), count($available_fields), 'Correct number of available fields');
+    foreach ($available_fields as $field_name) {
+      $this->assertTrue(in_array($field_name, $this->otherFieldNames), 'Available field name correct');
+    }
+  }
+
+  /**
+   * @covers ::shouldUserSeePaywall
+   */
+  public function testShouldUserSeePaywall() {
+    $non_bypass_user = $this->createUserWithPaywallPermission(FALSE);
+    $non_bypass_output = $this->paywallFormatterInstance->shouldUserSeePaywall($non_bypass_user);
+
+    $bypass_user = $this->createUserWithPaywallPermission(TRUE);
+    $bypass_output = $this->paywallFormatterInstance->shouldUserSeePaywall($bypass_user);
+
+    $this->assertTrue($non_bypass_output, 'User without bypass permissions sees paywall');
+    $this->assertFalse($bypass_output, 'User with bypass permissions does not see paywall');
+  }
+
+  /**
+   * @covers ::settingsSummary
+   */
+  public function testSettingsSummary() {
+    $this->paywallFormatterInstance->setSetting('hidden_fields', $this->otherFieldNames);
+    $summary = $this->paywallFormatterInstance->settingsSummary();
+
+    $expected_messages = array(
+      t('Message: @message', array(
+        '@message' => $this->paywallTestMessage,
+      )),
+      t('Hidden fields: @fields', array(
+        '@fields' => implode(', ', $this->otherFieldNames),
+      )),
+    );
+
+    $this->assertEqual(2, count($summary), '2 summary items found');
+
+    $this->assertEqual($expected_messages[0], $summary[0], 'Summary for message value correct');
+    $this->assertEqual($expected_messages[1], $summary[1], 'Summary for hidden fields value correct');
+  }
+
+  /**
+   * Create a test user with or without paywall bypass permission.
+   *
+   * @param bool $paywall_bypass
+   *   Whether the user can bypass the paywall or not.
+   *
+   * @return EntityInterface
+   *   The created user account.
+   *
+   */
+  protected function createUserWithPaywallPermission($paywall_bypass) {
+    $values = array(
+      'name' => $this->randomMachineName(),
+      'bundle' => 'user',
+    );
+
+    if ($paywall_bypass) {
+      $bypass_role = $this->createBypassRole();
+      $values['roles'][] = $bypass_role->id();
+    }
+
+    $account = entity_create('user', $values);
+    $account->save();
+
+    return $account;
+  }
+
+  /**
+   * Create a paywall bypass role.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *   The role Entity.
+   */
+  protected function createBypassRole() {
+    // Create a new role and apply permissions to it.
+    $role = entity_create('user_role', array(
+      'id' => strtolower($this->randomMachineName(8)),
+      'label' => $this->randomMachineName(8),
+    ));
+    $role->save();
+
+    $permission_name = 'bypass ' . $this->paywallFieldDefinition->uuid();
+    user_role_grant_permissions($role->id(), array($permission_name));
+
+    return $role;
+  }
 
   /**
    * Create a test entity with paywall.
@@ -206,6 +288,9 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
 
     $entity_manager = $this->container->get('entity.manager');
     $definitions = $entity_manager->getFieldDefinitions('entity_test', 'entity_test');
+
+    $this->paywallFieldDefinition = $definitions['field_paywall'];
+
     $formatter_options = array(
       'field_definition' => $definitions['field_paywall'],
       'view_mode' => 'default',
