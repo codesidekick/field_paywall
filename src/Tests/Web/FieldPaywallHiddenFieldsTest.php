@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\field_paywall\Tests\FieldPaywallHiddenFieldsTest.
+ * Contains \Drupal\field_paywall\Tests\Web\FieldPaywallHiddenFieldsTest.
  */
 
-namespace Drupal\field_paywall\Tests;
+namespace Drupal\field_paywall\Tests\Web;
 
 /**
  * Tests the paywall field display functionality.

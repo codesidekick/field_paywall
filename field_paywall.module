@@ -25,12 +25,12 @@ function field_paywall_theme() {
  * Implements hook_entity_view_alter().
  */
 function field_paywall_entity_view_alter(array &$build, Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display) {
-  if (!isset($entity->active_paywalls)) {
+  if (!isset($entity->activePaywalls)) {
     return;
   }
 
   // Hide any field specified by the entity's currently active paywalls.
-  foreach ($entity->active_paywalls as $paywall_name => $paywall_settings) {
+  foreach ($entity->activePaywalls as $paywall_name => $paywall_settings) {
     $hidden_fields = $paywall_settings['hidden_fields'];
 
     foreach ($hidden_fields as $hidden_field_name) {

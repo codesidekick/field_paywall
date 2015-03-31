@@ -60,7 +60,7 @@ class PaywallFormatter extends FormatterBase {
       $field_name = $entities_item->getFieldDefinition()->getName();
 
       if (!empty($value) && !empty($value[0]['enabled'])) {
-        $entity->active_paywalls[$field_name] = array(
+        $entity->activePaywalls[$field_name] = array(
           'enabled' => TRUE,
           'hidden_fields' => array_filter($this->getSetting('hidden_fields')),
         );
@@ -125,7 +125,7 @@ class PaywallFormatter extends FormatterBase {
   }
 
   /**
-   * Check whether or not the current user shoudl see the paywall or not.
+   * Check whether or not the current user should see the paywall or not.
    */
   public function shouldUserSeePaywall() {
     $user_sees_paywall = TRUE;

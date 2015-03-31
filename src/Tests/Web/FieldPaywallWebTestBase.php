@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\field_paywall\Tests\FieldPaywallUnitTestBase.
+ * Contains \Drupal\field_paywall\Tests\Web\FieldPaywallUnitTestBase.
  */
 
-namespace Drupal\field_paywall\Tests;
+namespace Drupal\field_paywall\Tests\Web;
 
 use Drupal\field\Tests\FieldTestBase;
 
