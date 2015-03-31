@@ -8,9 +8,6 @@
 namespace Drupal\field_paywall\Tests\Unit;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\FieldItemInterface;
-use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Form\FormState;
 use Drupal\field\Tests\FieldUnitTestBase;
 use Drupal\field_paywall\Plugin\Field\FieldType\PaywallItem;
@@ -21,6 +18,9 @@ use Drupal\field_paywall\Plugin\Field\FieldType\PaywallItem;
  */
 class FieldPaywallFieldItemUnitTest extends FieldUnitTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = array('field_paywall');
 
   /**

@@ -8,12 +8,8 @@
 namespace Drupal\field_paywall\Tests\Unit;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\field\Tests\FieldUnitTestBase;
-use Drupal\field_paywall\Plugin\Field\FieldFormatter\PaywallFormatter;
-use Drupal\Core\Language\LanguageInterface;
 
 /**
  * @coversDefaultClass \Drupal\field_paywall\Plugin\Field\FieldFormatter\PaywallFormatter
@@ -21,15 +17,35 @@ use Drupal\Core\Language\LanguageInterface;
  */
 class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static $modules = array('field_paywall');
 
+  /**
+   * The paywall test message to use.
+   *
+   * @var string
+   */
   protected $paywallTestMessage = 'test paywall message';
 
-  protected $paywallHiddenFields = array();
-
+  /**
+   * Other fields to create for the test.
+   *
+   * @var array
+   */
   protected $otherFieldNames = array(
     'field_test_1',
     'field_test_2',
+  );
+
+  /**
+   * The fields hidden by the paywall.
+   *
+   * @var array
+   */
+  protected $paywallHiddenFields = array(
+    'field_test_1',
   );
 
   /**
