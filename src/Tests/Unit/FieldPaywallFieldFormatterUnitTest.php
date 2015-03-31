@@ -9,18 +9,12 @@ namespace Drupal\field_paywall\Tests\Unit;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormState;
-use Drupal\field\Tests\FieldUnitTestBase;
 
 /**
  * @coversDefaultClass \Drupal\field_paywall\Plugin\Field\FieldFormatter\PaywallFormatter
  * @group Paywall
  */
-class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static $modules = array('field_paywall');
+class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
 
   /**
    * The paywall test message to use.
@@ -49,13 +43,6 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
   );
 
   /**
-   * The paywall field definition in use.
-   *
-   * @var \Drupal\field\Entity\FieldConfig;
-   */
-  protected $paywallFieldDefinition = NULL;
-
-  /**
    * The paywall formatter plugin to test.
    *
    * @var \Drupal\field_paywall\Plugin\Field\FieldFormatter\PaywallFormatter;
@@ -67,8 +54,6 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
    */
   protected function setUp() {
     parent::setUp();
-
-    $this->createPaywallField();
 
     foreach ($this->otherFieldNames as $field_name) {
       $this->createBasicTextField($field_name);
@@ -232,68 +217,6 @@ class FieldPaywallFieldFormatterUnitTest extends FieldUnitTestBase {
     user_role_grant_permissions($role->id(), array($permission_name));
 
     return $role;
-  }
-
-  /**
-   * Create a test entity with paywall.
-   *
-   * @param bool $paywall_enabled
-   *   Whether or not the paywall should be enabled.
-   *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   The test entity.
-   */
-  protected function createTestEntity($paywall_enabled = TRUE) {
-    // Verify entity creation.
-    $entity = entity_create('entity_test');
-
-    $value = $paywall_enabled ? 1 : 0;
-    $entity->field_paywall = $value;
-    $entity->name->value = $this->randomMachineName();
-    $entity->save();
-
-    return $entity;
-  }
-
-  /**
-   * Create the paywall field.
-   */
-  protected function createPaywallField() {
-    entity_create('field_storage_config', array(
-      'field_name' => 'field_paywall',
-      'entity_type' => 'entity_test',
-      'type' => 'paywall',
-    ))->save();
-    entity_create('field_config', array(
-      'entity_type' => 'entity_test',
-      'field_name' => 'field_paywall',
-      'bundle' => 'entity_test',
-    ))->save();
-  }
-
-  /**
-   * Create a basic string textfield and attach to the entity bundle.
-   *
-   * @param string $field_name
-   *   The field name to create.
-   */
-  protected function createBasicTextField($field_name) {
-    entity_create('field_storage_config', array(
-      'field_name' => $field_name,
-      'entity_type' => 'entity_test',
-      'type' => 'string',
-      'cardinality' => 1,
-    ))->save();
-
-    entity_create('field_config', array(
-      'entity_type' => 'entity_test',
-      'field_name' => $field_name,
-      'bundle' => 'entity_test',
-    ))->save();
-
-    entity_get_display('entity_test', 'entity_test', 'default')
-      ->setComponent($field_name)
-      ->save();
   }
 
   /**
