@@ -27,7 +27,9 @@ class PaywallWidget extends WidgetBase {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $element['enabled'] = array(
-      '#title' => t('Enabled'),
+      '#title' => t("Enable %label", array(
+        '%label' => $element['#title'],
+      )),
       '#type' => 'checkbox',
       '#default_value' => isset($items[$delta]->enabled) ? $items[$delta]->enabled : NULL,
     );
