@@ -17,7 +17,8 @@ use Drupal\Core\Form\FormStateInterface;
  * @FieldType(
  *   id = "paywall",
  *   label = @Translation("Paywall"),
- *   description = @Translation("Hides fields when an entity is viewed and displays a custom message to the visitor."),
+ *   description = @Translation("Hides fields when an entity is viewed and
+ *   displays a custom message to the visitor."),
  *   default_widget = "paywall_widget",
  *   default_formatter = "paywall_formatter"
  * )
@@ -26,7 +27,7 @@ class PaywallItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  static $propertyDefinitions;
+  public static $propertyDefinitions;
 
   /**
    * {@inheritdoc}

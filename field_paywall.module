@@ -23,7 +23,7 @@ function field_paywall_theme() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() for 'field_storage_config_edit_form'.
+ * Implements hook_form_FORM_ID_alter().
  */
 function field_paywall_form_field_storage_config_edit_form_alter(&$form, FormStateInterface $form_state) {
   if ($form_state->getFormObject()->getEntity()->getType() == 'paywall') {

@@ -17,6 +17,7 @@ class PaywallPermissions {
    * Get bypass permissions for each paywall field on the site.
    *
    * @return array
+   *   Custom bypass permissions for each paywall field.
    */
   public function permissions() {
     $permissions = [];

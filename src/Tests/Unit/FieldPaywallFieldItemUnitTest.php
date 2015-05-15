@@ -23,6 +23,8 @@ class FieldPaywallFieldItemUnitTest extends FieldPaywallUnitTestBase {
   public static $modules = array('field_paywall');
 
   /**
+   * Test the schema method.
+   *
    * @covers ::schema
    */
   public function testSchema() {
@@ -36,6 +38,8 @@ class FieldPaywallFieldItemUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the isEmpty method.
+   *
    * @covers ::isEmpty
    */
   public function testIsEmpty() {
@@ -47,6 +51,8 @@ class FieldPaywallFieldItemUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the propertyDefinitions method.
+   *
    * @covers ::propertyDefinitions
    */
   public function testPropertyDefinitions() {

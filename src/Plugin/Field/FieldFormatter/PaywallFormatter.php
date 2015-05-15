@@ -107,7 +107,7 @@ class PaywallFormatter extends FormatterBase {
    * Returns a list of fields for this entity and this display mode to hide.
    *
    * @return array
-   *
+   *   Paywall field labels keyed by field name.
    */
   public function getAvailableFields() {
     $available_fields = array();

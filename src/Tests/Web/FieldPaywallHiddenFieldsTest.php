@@ -18,8 +18,9 @@ class FieldPaywallHiddenFieldsTest extends FieldPaywallWebTestBase {
    * Tests whether hidden fields are truly
    */
   function testHiddenFieldsAreHidden() {
-    $entity = $this->createEntityWithValues();
-    $viewed_entity = entity_view($entity, 'default');
+    $entity = $this->createEntityWithPaywall(TRUE);
+    $this->drupalGet($entity->url());
+
 
   }
 

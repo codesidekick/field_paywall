@@ -63,6 +63,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the viewElements method.
+   *
    * @covers ::viewElements
    */
   public function testViewElements() {
@@ -76,6 +78,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the prepareView method.
+   *
    * @covers ::prepareView
    */
   public function testPrepareView() {
@@ -94,6 +98,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the defaultSettings method.
+   *
    * @covers ::defaultSettings
    */
   public function testDefaultSettings() {
@@ -104,6 +110,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the settingsForm method.
+   *
    * @covers ::settingsForm
    */
   public function testSettingsForm() {
@@ -125,6 +133,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the getAvailableFields method.
+   *
    * @covers ::getAvailableFields
    */
   public function testGetAvailableFields() {
@@ -137,6 +147,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the shouldUserSeePaywall method.
+   *
    * @covers ::shouldUserSeePaywall
    */
   public function testShouldUserSeePaywall() {
@@ -151,6 +163,8 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
+   * Test the settingsSummary method.
+   *
    * @covers ::settingsSummary
    */
   public function testSettingsSummary() {
@@ -244,5 +258,4 @@ class FieldPaywallFieldFormatterUnitTest extends FieldPaywallUnitTestBase {
 
     $this->paywallFormatterInstance = $formatter_plugin_manager->getInstance($formatter_options);
   }
-
 }

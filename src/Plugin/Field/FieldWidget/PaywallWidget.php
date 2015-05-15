@@ -3,6 +3,7 @@
  * @file
  * Contains \Drupal\field_paywall\Plugin\Field\FieldWidget\PaywallWidget.
  */
+
 namespace Drupal\field_paywall\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Field\FieldItemListInterface;

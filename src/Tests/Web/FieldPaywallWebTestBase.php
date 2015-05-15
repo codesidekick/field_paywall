@@ -81,13 +81,42 @@ abstract class FieldPaywallWebTestBase extends FieldTestBase {
     // Create Basic page and Article node types.
     $this->drupalCreateContentType(array(
       'type' => 'article',
-      'name' => 'Article'
+      'name' => 'Article',
     ));
 
     $this->createHiddenFields();
     $this->createVisibleFields();
     $this->createPaywallField();
     $this->setPaywallDisplayOptions();
+  }
+
+  /**
+   * Create a prepopulated entity with an active paywall for testing.
+   *
+   * @param BOOL $enabled
+   *   Whether or not the paywall should be enabled.
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
+   *   The created entity.
+   */
+  protected function createEntityWithPaywall($enabled = TRUE) {
+    $entity = entity_create('node');
+
+    foreach ($this->visibleFields as $visible_field_name) {
+      $entity->{$visible_field_name}->value = $this->randomMachineName();
+    }
+
+    foreach ($this->hiddenFields as $hidden_field_name) {
+      $entity->{$hidden_field_name}->value = $this->randomMachineName();
+    }
+
+    $entity->{$this->fieldName}->value = array(
+      'enabled' => $enabled,
+    );
+
+    $entity->save();
+
+    return $entity;
   }
 
   /**
@@ -152,18 +181,18 @@ abstract class FieldPaywallWebTestBase extends FieldTestBase {
    *   The field name to create.
    */
   protected function createBasicTextField($field_name) {
-    $fieldStorageDefinition = array(
+    $field_storage_definition = array(
       'field_name' => $field_name,
       'entity_type' => 'node',
       'type' => 'string',
       'cardinality' => 1,
       'settings' => array(),
     );
-    $fieldStorage = entity_create('field_storage_config', $fieldStorageDefinition);
-    $fieldStorage->save();
+    $field_storage = entity_create('field_storage_config', $field_storage_definition);
+    $field_storage->save();
 
     $field = entity_create('field_config', array(
-      'field_storage' => $fieldStorage,
+      'field_storage' => $field_storage,
       'bundle' => 'article',
     ));
     $field->save();
@@ -171,31 +200,5 @@ abstract class FieldPaywallWebTestBase extends FieldTestBase {
     entity_get_display('node', 'article', 'default')
       ->setComponent($field_name)
       ->save();
-  }
-
-  /**
-   * Create a prepopulated entity with an active paywall for testing.
-   *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   The created entity.
-   */
-  protected function createEntityWithValues() {
-    $entity = entity_create('node');
-
-    foreach ($this->visibleFields as $visible_field_name) {
-      $entity->{$visible_field_name}->value = $this->randomMachineName();
-    }
-
-    foreach ($this->hiddenFields as $hidden_field_name) {
-      $entity->{$hidden_field_name}->value = $this->randomMachineName();
-    }
-
-    $entity->{$this->fieldName}->value = array(
-      'enabled' => TRUE,
-    );
-
-    $entity->save();
-
-    return $entity;
   }
 }
