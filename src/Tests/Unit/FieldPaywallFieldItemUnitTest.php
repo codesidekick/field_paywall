@@ -61,20 +61,6 @@ class FieldPaywallFieldItemUnitTest extends FieldPaywallUnitTestBase {
   }
 
   /**
-   * @covers ::fieldSettingsForm
-   */
-  public function testFieldSettingsForm() {
-    $entity = $this->createTestEntity(TRUE);
-    $field_base = $this->getFieldItemBaseFromEntity($entity);
-    $form_state = new FormState();
-    $field_settings_form_output = $field_base->fieldSettingsForm(array(), $form_state);
-
-    $this->assertEqual('fieldset', $field_settings_form_output['#type'], 'Settings form type is correct');
-    $this->assertEqual('Paywall settings', $field_settings_form_output['#title'], 'Settings form title is correct');
-    $this->assertTrue(!empty($field_settings_form_output['help']), 'Help markup found in settings form');
-  }
-
-  /**
    * Retrieve the field item base from a given Entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
