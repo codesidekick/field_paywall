@@ -7,9 +7,6 @@
 
 namespace Drupal\field_paywall;
 
-use Drupal\Component\Utility\String;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
-
 
 /**
  * Provides dynamic permissions for the Field Paywall module.

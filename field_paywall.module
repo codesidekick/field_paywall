@@ -5,6 +5,7 @@
  */
 
 use \Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_theme().
@@ -19,6 +20,17 @@ function field_paywall_theme() {
       ),
     ),
   );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for 'field_storage_config_edit_form'.
+ */
+function field_paywall_form_field_storage_config_edit_form_alter(&$form, FormStateInterface $form_state) {
+  if ($form_state->getFormObject()->getEntity()->getType() == 'paywall') {
+    // Allow only a single paywall setting per entity.
+    $form['cardinality_container']['cardinality']['#default_value'] = 1;
+    $form['cardinality_container']['#access'] = FALSE;
+  }
 }
 
 /**
